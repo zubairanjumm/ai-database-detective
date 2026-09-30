@@ -1,5 +1,7 @@
 from app.database import Database
+import pytest
 
+from app.database import Database
 
 def test_get_tables():
     db = Database("sqlite:///samples/business.db")
@@ -38,3 +40,17 @@ def test_execute_query():
     )
 
     assert completed["revenue"] == 3130.0
+
+
+def test_database_rejects_delete():
+    db = Database("sqlite:///samples/business.db")
+
+    with pytest.raises(ValueError):
+        db.execute_query("DELETE FROM orders")
+
+
+def test_database_rejects_drop():
+    db = Database("sqlite:///samples/business.db")
+
+    with pytest.raises(ValueError):
+        db.execute_query("DROP TABLE orders")

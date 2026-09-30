@@ -1,13 +1,14 @@
-from pathlib import Path
-
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine import Engine
+
+from app.sql_validator import SQLValidator
 
 
 class Database:
     def __init__(self, database_url: str):
         self.database_url = database_url
         self.engine = create_engine(database_url)
+        self.validator = SQLValidator()
 
     def get_engine(self) -> Engine:
         return self.engine
@@ -29,8 +30,11 @@ class Database:
         ]
 
     def execute_query(self, query: str) -> list[dict]:
+        valid, message = self.validator.validate(query)
+
+        if not valid:
+            raise ValueError(message)
+
         with self.engine.connect() as connection:
             result = connection.execute(text(query))
             return [dict(row._mapping) for row in result]
-
-        
