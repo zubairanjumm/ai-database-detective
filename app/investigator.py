@@ -15,23 +15,16 @@ class Investigator:
         self.sql_generator = sql_generator
         self.analyzer = analyzer
 
-    def investigate(self, question: str) -> InvestigationState:
-        schema = self.tools.inspect_schema()
-
-        state: InvestigationState = {
-            "question": question,
-            "schema": schema,
-            "queries": [],
-            "results": [],
-            "findings": [],
-            "current_step": 0,
-            "max_steps": 3,
-            "final_report": None,
-        }
+    def investigate(
+        self,
+        state: InvestigationState,
+    ) -> InvestigationState:
+        if not state["schema"]:
+            state["schema"] = self.tools.inspect_schema()
 
         query = self.sql_generator.generate(
-            question,
-            schema,
+            state["question"],
+            state["schema"],
         )
 
         result = self.tools.execute_sql(query)
@@ -41,6 +34,15 @@ class Investigator:
         state["queries"].append(query)
         state["results"].append(result)
         state["findings"].extend(findings)
-        state["current_step"] = 1
+
+        state["current_step"] += 1
+
+        state["needs_more_evidence"] = (
+            self.analyzer.needs_more_evidence(
+                result,
+                state["current_step"],
+                state["max_steps"],
+            )
+        )
 
         return state

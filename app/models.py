@@ -22,4 +22,5 @@ class InvestigationState(TypedDict):
     findings: list[str]
     current_step: int
     max_steps: int
+    need_more_evidence : bool
     final_report: str | None

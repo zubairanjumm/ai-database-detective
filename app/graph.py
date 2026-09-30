@@ -22,11 +22,15 @@ def build_graph(database: Database):
     def investigate_node(
         state: InvestigationState,
     ) -> InvestigationState:
-        result = investigator.investigate(
-            state["question"]
-        )
+        return investigator.investigate(state)
 
-        return result
+    def should_continue(
+        state: InvestigationState,
+    ) -> str:
+        if state["needs_more_evidence"]:
+            return "investigate"
+
+        return END
 
     graph = StateGraph(InvestigationState)
 
@@ -40,9 +44,13 @@ def build_graph(database: Database):
         "investigate",
     )
 
-    graph.add_edge(
+    graph.add_conditional_edges(
         "investigate",
-        END,
+        should_continue,
+        {
+            "investigate": "investigate",
+            END: END,
+        },
     )
 
     return graph.compile()
