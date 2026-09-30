@@ -1,5 +1,6 @@
 from langgraph.graph import END, START, StateGraph
 
+from app.analyzer import ResultAnalyzer
 from app.database import Database
 from app.investigator import Investigator
 from app.models import InvestigationState
@@ -10,10 +11,12 @@ from app.tools import DatabaseTools
 def build_graph(database: Database):
     tools = DatabaseTools(database)
     generator = SQLGenerator()
+    analyzer = ResultAnalyzer()
 
     investigator = Investigator(
         tools=tools,
         sql_generator=generator,
+        analyzer=analyzer,
     )
 
     def investigate_node(

@@ -1,3 +1,4 @@
+from app.analyzer import ResultAnalyzer
 from app.database import Database
 from app.investigator import Investigator
 from app.sql_generator import SQLGenerator
@@ -9,10 +10,12 @@ def test_investigator_runs_query():
 
     tools = DatabaseTools(database)
     generator = SQLGenerator()
+    analyzer = ResultAnalyzer()
 
     investigator = Investigator(
         tools=tools,
         sql_generator=generator,
+        analyzer=analyzer,
     )
 
     state = investigator.investigate(
