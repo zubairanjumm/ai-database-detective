@@ -43,4 +43,43 @@ def test_investigator_runs_query():
     assert result["current_step"] == 1
 
     assert result["results"][0].row_count > 0
-    assert result["needs_more_evidence"] is False
+    assert result["needs_more_evidence"] is True
+
+
+def test_investigator_can_run_follow_up_query():
+    database = Database("sqlite:///samples/business.db")
+
+    tools = DatabaseTools(database)
+    generator = SQLGenerator()
+    analyzer = ResultAnalyzer()
+
+    investigator = Investigator(
+        tools=tools,
+        sql_generator=generator,
+        analyzer=analyzer,
+    )
+
+    state: InvestigationState = {
+        "question": "What is the total revenue for each order status?",
+        "schema": {},
+        "queries": [],
+        "results": [],
+        "findings": [],
+        "current_step": 0,
+        "max_steps": 3,
+        "needs_more_evidence": True,
+        "final_report": None,
+    }
+
+    first_result = investigator.investigate(state)
+    second_result = investigator.investigate(first_result)
+
+    assert len(second_result["queries"]) == 2
+    assert len(second_result["results"]) == 2
+
+    assert (
+        second_result["queries"][0].query
+        != second_result["queries"][1].query
+    )
+
+    assert second_result["current_step"] == 2

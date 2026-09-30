@@ -21,16 +21,14 @@ class ResultAnalyzer:
             )
 
         return findings
+
     def needs_more_evidence(
-    self,
-    result: QueryResult,
-    current_step: int,
-    max_steps: int,
-) -> bool:
+        self,
+        result: QueryResult,
+        current_step: int,
+        max_steps: int,
+    ) -> bool:
         if current_step >= max_steps:
             return False
 
-        if result.row_count == 0:
-            return True
-
-        return False
+        return True

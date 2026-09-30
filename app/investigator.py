@@ -25,6 +25,7 @@ class Investigator:
         query = self.sql_generator.generate(
             state["question"],
             state["schema"],
+            state["results"]
         )
 
         result = self.tools.execute_sql(query)

@@ -27,7 +27,7 @@ def build_graph(database: Database):
     def should_continue(
         state: InvestigationState,
     ) -> str:
-        if state["needs_more_evidence"]:
+        if state["current_step"] < state["max_steps"]:
             return "investigate"
 
         return END
